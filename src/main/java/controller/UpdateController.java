@@ -1,7 +1,6 @@
 package controller;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -12,9 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class HomeController {
+public class UpdateController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -32,15 +32,26 @@ public class HomeController {
      * DML
      * insert into sample values(1,'test');
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String home(Locale locale, Model model) {
-        logger.info("Welcome home! The client locale is {}.", locale);
+    @RequestMapping(value = "/UpdateController", method = RequestMethod.POST)
+    public String getDetails(
+    	    @RequestParam(value="upId", required=true) String Id,
+    	        @RequestParam(value="upName", required=false) String Name,
+    	        	Model model){
+    					updateTable(Id,Name);
+    					selectTable(model);
 
-        // データ取得テーブルは、当メソッドのコメント文のDDLとDMLを流して事前に用意して下さい。
+    			        model.addAttribute("message", "Update successful");
+    					return "home";
+    }
+
+    private void updateTable(String Id, String Name){
+    	jdbcTemplate.update("Update table1 SET name = \""+Name + "\" Where Id = \""+ Id + "\"");
+    }
+
+    private void selectTable(Model model){
         List<Map<String, Object>>  list = jdbcTemplate.queryForList("select * from table1");
 
         model.addAttribute("data", list);
-        return "home";
     }
 
 }
