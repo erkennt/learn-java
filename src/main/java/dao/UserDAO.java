@@ -13,4 +13,22 @@ public interface UserDAO {
 
 	//テストユーザーログイン
 	public List<UserModel> userTestLogin();
+
+	//登録
+	public void userInsert(UserModel userModel);
+
+	//更新
+	public void userUpdate(UserModel userModel);
+
+
+	//削除
+	public void userDelete(UserModel userModel);
+
+	//検索
+	public void userSerarch(UserModel userModel);
+
+
+	//ユーザーステータス更新
+	public void userStatusUpdate(int status, String userId);
+
 }

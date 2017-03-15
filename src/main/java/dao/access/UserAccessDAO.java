@@ -40,4 +40,42 @@ public class UserAccessDAO implements UserDAO {
 		return  jdbcTemplate.query(sql
 				, new BeanPropertyRowMapper<UserModel>(UserModel.class));
 	}
+
+	public void userInsert(UserModel userModel) {
+
+		String sql = "insert into User(UserId, Password, NickName, MailAdress, Birthday, Asset, Status, InsDate, UpdDate, UpdUser)"
+				+ " values(:UserId, :Password, :NickName, :MailAdress, :Birthday, :Asset, :Status, :InsDate, :UpdDate, :UpdUser)";
+
+		namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(userModel));
+	}
+
+
+	public void userUpdate(UserModel userModel) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+
+	public void userDelete(UserModel userModel) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+
+	public void userSerarch(UserModel userModel) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	public void userStatusUpdate(int status, String userId){
+
+		String sql = "Update User Set Status = :Status Where UserId = :UserId";
+		MapSqlParameterSource params = new MapSqlParameterSource();
+
+		params.addValue("UserId", userId);
+		params.addValue("Status", status);
+
+		namedParameterJdbcTemplate.update(sql, params);
+		}
+
 }
