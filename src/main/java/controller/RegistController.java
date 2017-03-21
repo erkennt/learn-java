@@ -79,7 +79,7 @@ public class RegistController {
 			userModel.setUpdDate(timestamp);
 
 			// 登録実行
-			 userDao.userInsert(userModel);
+			// userDao.userInsert(userModel);
 
 			// ステータス更新
 			userDao.userStatusUpdate(1, userModel.getUserId()); // 後にメール認証後に実行・・・マジックナンバー要対応

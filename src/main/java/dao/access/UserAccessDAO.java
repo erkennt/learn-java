@@ -2,6 +2,8 @@ package dao.access;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -77,5 +79,32 @@ public class UserAccessDAO implements UserDAO {
 
 		namedParameterJdbcTemplate.update(sql, params);
 		}
+
+	public void userAssetUpdate(String userId, long prize){
+		String sql = "Update User Set Asset = Asset + (:Prize) Where UserId = :UserId";
+		MapSqlParameterSource params = new MapSqlParameterSource();
+
+		params.addValue("UserId", userId);
+		params.addValue("Prize", prize);
+
+		namedParameterJdbcTemplate.update(sql, params);
+	}
+
+	public void updateUserSessionInformation(HttpSession session) {
+		UserModel userModel = (UserModel) session.getAttribute("session");
+
+		UserModel newUserModel = this.getUserInformation(userModel);
+		session.setAttribute("session", newUserModel);
+	}
+
+	private UserModel getUserInformation(UserModel userModel) {
+		String sql = "Select * FROM User Where UserId = :UserId";
+
+		List<UserModel> list =  namedParameterJdbcTemplate.query(sql
+				, new BeanPropertySqlParameterSource(userModel)
+				, new BeanPropertyRowMapper<UserModel>(UserModel.class));
+
+		return list.get(0);
+	}
 
 }

@@ -7,8 +7,11 @@
 </head>
 <body>
 
-	登録が完了しました。
-	<br>ゲームを始めますか？
+ようこそ${UM.getNickName() }さん！<br>
+
+<br>
+登録が完了しました。
+いますぐ始めますか？<br>
 	<br>
 	<form:form action="/CardGame/login" method="POST" modelAttribute="UM">
 		<form:hidden path="UserId" />

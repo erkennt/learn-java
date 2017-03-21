@@ -37,7 +37,8 @@
 
 	<div style="width: auto; margin: 0 0;">
 		<div align="center">
-			<div>ようこそ ${session.getNickName()} さん</div>
+			<div>現在の所持金： ${session.getAsset() }</div>
+
 			<div>
 				<input id="message" type="text" size="80" value="ボタンの説明が表示されます"
 					readonly>
@@ -48,7 +49,9 @@
 					<th>メニュー</th>
 				</tr>
 				<tr>
-					<td><form:form action="/CardGame/menu/logout" method="POST">
+					<td><form:form action="/CardGame/game/donuts/main"
+							method="POST" modelAttribute="Game">
+							<form:hidden path="GameType" value="Donuts" />
 							<input id="donuts" type="submit" value="ドーナツゲーム"
 								onMouseOver="MouseOverMessage1();"
 								onMouseOut="MouseOutMessage();">
@@ -56,7 +59,9 @@
 				</tr>
 				<tr>
 
-					<td><form:form action="/CardGame/menu/logout" method="POST">
+					<td><form:form action="/CardGame/menu/logout" method="POST"
+							modelAttribute="Game">
+							<form:hidden path="GameType" value="donuts" />
 							<input id="highlow" type="submit" value="High&Low"
 								onMouseOver="MouseOverMessage2();"
 								onMouseOut="MouseOutMessage();">
