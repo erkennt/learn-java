@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans
@@ -44,4 +45,15 @@
 		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
 		<constructor-arg ref="dataSource" />
 	</bean>
+
+	<!-- エラーメッセージはプロパティファルを使うようにする -->
+	<!-- エンコード指定しなければ2バイト文字は文字化けする -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="classpath:/META-INF/ValidatorMessages" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+<bean name="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
 </beans>
