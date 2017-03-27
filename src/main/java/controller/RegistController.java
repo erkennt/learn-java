@@ -37,6 +37,9 @@ public class RegistController {
 	@Autowired
 	private UserDAO userDao;
 
+	@Autowired
+	private InitialDataSettingsDAO initialDataSettingsDAO;
+
 	@ModelAttribute("UM")
 	public UserModel init() {
 		return new UserModel();
@@ -125,14 +128,15 @@ public class RegistController {
 		} else {
 
 			// 初期値設定
-			Date date = new Date();
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+			List<InitialDataSettingsModel> initialAssetList = initialDataSettingsDAO.getInitialAsset("Asset");
+			long initialAsset = 0;
+			for (InitialDataSettingsModel list : initialAssetList) {
+				initialAsset = Long.parseLong(list.getValue());
+			}
 
-			userModel.setAsset(50000000); // 後にDBから取得
-			userModel.setBirthday(date); // 後に入力値から変換
-			userModel.setInsDate(timestamp);
-			userModel.setUpdDate(timestamp);
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+			userModel.setAsset(initialAsset);
 
 			// 登録実行
 			userDao.userInsert(userModel);
