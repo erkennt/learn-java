@@ -1,21 +1,58 @@
 package model;
 
-
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Date;
+
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import annotation.NotDuplication;
 
 public class UserModel {
 
+	@NotEmpty
+	@NotDuplication
+	@Length(min = 2, max = 10)
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String UserId;
+
+	@NotEmpty
+	@Length(min = 6, max = 20)
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String Password;
+
+	@NotEmpty
+	@Length(min = 6, max = 20)
 	private String NickName;
+
+	@NotEmpty
+	@Length(max = 254)
+	@Email
 	private String MailAddress;
+
+	@NotEmpty
 	private Date Birthday;
+
 	private long Asset;
+
 	private int Status;
+
 	private Timestamp InsDate;
+
 	private Timestamp UpdDate;
+
 	private String UpdUser;
+
+	// 新規登録用
+	@NotEmpty
+	private String Years;
+	@NotEmpty
+	private String Month;
+	@NotEmpty
+	private String Days;
 
 	public String getUserId() {
 		return UserId;
@@ -95,6 +132,30 @@ public class UserModel {
 
 	public void setUpdUser(String updUser) {
 		UpdUser = updUser;
+	}
+
+	public String getYears() {
+		return Years;
+	}
+
+	public void setYears(String years) {
+		Years = years;
+	}
+
+	public String getMonth() {
+		return Month;
+	}
+
+	public void setMonth(String month) {
+		Month = month;
+	}
+
+	public String getDays() {
+		return Days;
+	}
+
+	public void setDays(String days) {
+		Days = days;
 	}
 
 }

@@ -19,23 +19,23 @@
 					</tr>
 					<tr>
 						<th>ログインID</th>
-						<td>${UM.getUserId()}<form:hidden path="UserId" /></td>
+						<td>${UM.getUserId()}</td>
 					</tr>
 					<tr>
 						<th>Password</th>
-						<td>${UM.getPassword()}<form:hidden path="Password" /></td>
+						<td>${UM.getPassword()}</td>
 					</tr>
 					<tr>
 						<th>ニックネーム</th>
-						<td>${UM.getNickName()}<form:hidden path="NickName" /></td>
+						<td>${UM.getNickName()}</td>
 					</tr>
 					<tr>
 						<th>メールアドレス</th>
-						<td>${UM.getMailAddress()}<form:hidden path="MailAddress" /></td>
+						<td>${UM.getMailAddress()}</td>
 					</tr>
 					<tr>
 						<th>生年月日</th>
-						<td>${UM.getBirthday()}<%-- <form:hidden path="Birthday"/> --%></td>
+						<td>${UM.getYears()}年${UM.getMonth()}月${UM.getDays()}日</td>
 					</tr>
 					<tr>
 						<th colspan=2><input type="submit" value="登録" /></th>
@@ -45,11 +45,6 @@
 			</table>
 			<form:form action="/CardGame/regist" method="POST"
 				modelAttribute="UM">
-				<form:hidden path="UserId" />
-				<form:hidden path="Password" />
-				<form:hidden path="NickName" />
-				<form:hidden path="MailAddress" />
-				<%-- <form:hidden path="Birthday" /> --%>
 				<input type="submit" value="キャンセル" />
 			</form:form>
 		</div>
