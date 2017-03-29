@@ -12,7 +12,7 @@
 			<div>入力した情報に誤りが無いか確認してください</div>
 			<table border="1"
 				style="border-spacing: 0; border-collapse: collapse;">
-				<form:form action="/CardGame/regist/complete" method="POST"
+				<form:form action="/CardGame/regist/temp" method="POST"
 					modelAttribute="UM">
 					<tr>
 						<th colspan=2>入力内容</th>

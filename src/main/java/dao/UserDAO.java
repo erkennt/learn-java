@@ -22,20 +22,24 @@ public interface UserDAO {
 	//更新
 	public void userUpdate(UserModel userModel);
 
-
 	//削除
 	public void userDelete(UserModel userModel);
 
 	//検索
 	public void userSerarch(UserModel userModel);
 
-
 	//ユーザーステータス更新
-	public void userStatusUpdate(int status, String userId);
+	public void updateActive(String userId);
 
 	// ユーザーの資産の増減
 	public void userAssetUpdate(String userId, long prize);
 
 	// ユーザーセッションン情報の更新
 	public void updateUserSessionInformation(HttpSession session);
+
+
+	public List<UserModel> getUserInformation(String userId);
+
+	public List<UserModel> userLogin(String userId, String password);
+
 }

@@ -1,7 +1,8 @@
 package model;
 
-import java.sql.Date;
+
 import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.validation.constraints.Pattern;
 
@@ -33,12 +34,11 @@ public class UserModel {
 	@Email
 	private String MailAddress;
 
-	@NotEmpty
 	private Date Birthday;
 
 	private long Asset;
 
-	private int Status;
+	private boolean Status;
 
 	private Timestamp InsDate;
 
@@ -102,11 +102,11 @@ public class UserModel {
 		Asset = asset;
 	}
 
-	public int getStatus() {
+	public boolean getStatus() {
 		return Status;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(boolean status) {
 		Status = status;
 	}
 

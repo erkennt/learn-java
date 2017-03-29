@@ -2,13 +2,13 @@ package controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -24,30 +24,40 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import dao.InitialDataSettingsDAO;
+import dao.MailAuthenticationDAO;
 import dao.UserDAO;
+import mail.MailService;
 import model.InitialDataSettingsModel;
+import model.MailAuthenticationModel;
 import model.UserModel;
 
 @Controller
 @SessionAttributes("UM")
 public class RegistController {
 	@Autowired
-	private UserDAO userDao;
+	private UserDAO userDAO;
 
 	@Autowired
 	private InitialDataSettingsDAO initialDataSettingsDAO;
+
+	@Autowired
+	private MailAuthenticationDAO mailAuthenticationDAO;
+
+	@Autowired
+	private MailService mailService;
 
 	@ModelAttribute("UM")
 	public UserModel init() {
 		return new UserModel();
 	}
-
+	// modelのBirthdayに値を代入
 	@InitBinder("UM")
 	public void bindUser(WebDataBinder binder, HttpServletRequest request) {
-		// SelectBoxの選択値をBirthdayに代入
+		// SelectBoxが全て選択されている場合に代入する
 		if (!StringUtils.isEmpty(request.getParameter("Years")) && !StringUtils.isEmpty(request.getParameter("Month"))
 				&& !StringUtils.isEmpty(request.getParameter("Days"))) {
 
@@ -118,6 +128,15 @@ public class RegistController {
 	public String userAddCompletePost(@Valid @ModelAttribute("UM") UserModel userModel, BindingResult result,
 			Model model, HttpSession session) {
 
+		return "regist_complete";
+
+	}
+
+	// 仮登録
+	@RequestMapping(value = "/regist/temp", method = { GET, POST })
+	public String registTemp(@Valid @ModelAttribute("UM") UserModel userModel, Model model, BindingResult result,
+			HttpServletRequest request) throws MessagingException {
+
 		// 情報のチェック
 		if (result.hasErrors()) {
 
@@ -133,19 +152,58 @@ public class RegistController {
 			for (InitialDataSettingsModel list : initialAssetList) {
 				initialAsset = Long.parseLong(list.getValue());
 			}
-
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
 			userModel.setAsset(initialAsset);
 
-			// 登録実行
-			userDao.userInsert(userModel);
+			// AuthenticationPoolへの登録
+			mailAuthenticationDAO.addAuthenticationPool(userModel.getUserId(), userModel.getMailAddress());
 
-			// ステータス更新
-			userDao.userStatusUpdate(1, userModel.getUserId()); // 後にメール認証後に実行・・・マジックナンバー要対応
+			// 仮登録実行
+			userDAO.userInsert(userModel);
 
-			return "regist_complete";
+			// URL生成 ID + MailAddress
+			String requestUrl = request.getRequestURL().toString();
+			String requestServletPath = request.getServletPath();
+
+			String url = requestUrl.replace(requestServletPath, "/regist/authentication?");
+			String param = "UserId=" + userModel.getUserId() + "&" + "MailAddress=" + userModel.getMailAddress();
+			url += param;
+
+			// メール送信
+			mailService.doSendUserAuthenticationEmail(userModel.getNickName(), userModel.getMailAddress(), url);
+
+			return "regist_temporary";
+
 		}
+	}
+
+	// 登録完了
+	@RequestMapping(value = "/regist/authentication", method = { GET, POST })
+	public String registAuth(@RequestParam("UserId") String userId, @RequestParam("MailAddress") String mailAddress,
+			@ModelAttribute("UM") UserModel userModel, Model model) {
+
+		// ユーザー照会
+		List<MailAuthenticationModel> authenticationList = mailAuthenticationDAO.searchAuthenticationPool(mailAddress,
+				userId);
+
+		if (authenticationList.size() <= 0) {
+
+			model.addAttribute("msg", "認証に失敗しました<br>URLが正しく入力されているか確認してください");
+			return "regist_error";
+		} else if (authenticationList.get(0).isStatus() == Boolean.TRUE) {
+			model.addAttribute("msg", "既に本登録が完了しています。");
+			return "regist_error";
+		}
+
+		// Authenticationステータス更新
+		mailAuthenticationDAO.updateStatus(mailAddress);
+
+		// ユーザーステータス更新
+		userDAO.updateActive(userId);
+
+		// ユーザーデータの再取得
+		model.addAttribute("UM", userDAO.getUserInformation(userId).get(0));
+
+		return "regist_complete";
 	}
 
 	// 年
