@@ -29,13 +29,25 @@ public class GameSettingsAccessDAO implements GameSettingsDAO {
 				new BeanPropertyRowMapper<GameSettingsModel>(GameSettingsModel.class));
 	}
 
-	public void updateCurrentCardId(String gameType, long CardId){
-	String sql ="UPDATE GameSettings SET CurrentCardId = :CardId WHERE GameType = :GameType";
 
-	MapSqlParameterSource params = new MapSqlParameterSource();
-	params.addValue("CardId", CardId);
-	params.addValue("GameType", gameType);
+	public List<GameSettingsModel> gameSettingsLoad(String gameType) {
+		String sql = "Select * FROM GameSettings Where GameType = :GameType";
 
-	namedParameterJdbcTemplate.update(sql, params);
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("GameType", gameType);
+
+		return namedParameterJdbcTemplate.query(sql, params,
+				new BeanPropertyRowMapper<GameSettingsModel>(GameSettingsModel.class));
 	}
+
+	public void updateCurrentCardId(String gameType, long CardId) {
+		String sql = "UPDATE GameSettings SET CurrentCardId = :CardId WHERE GameType = :GameType";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("CardId", CardId);
+		params.addValue("GameType", gameType);
+
+		namedParameterJdbcTemplate.update(sql, params);
+	}
+
 }
