@@ -8,7 +8,7 @@
 
 <html>
 <head>
-<title>ドーナツゲーム</title>
+<title>High & Low</title>
 </head>
 <body>
 	<div align="center">
@@ -34,9 +34,15 @@
 							次の人がカードを引くまでお待ちください
 							</c:when>
 							<c:when test="${DrawState == 1}">
-								<form:form action="/CardGame/game/donuts/draw" method="POST"
-									modelAttribute="Game">
-									<input type="submit" value="カードを引く" />
+								<form:form action="/CardGame/game/highlow/draw" method="POST">
+									<input type="hidden" id="select" name="select" value="big">
+									<input type="submit" value="大きい方に賭けてカードを引く" />
+								</form:form>
+								<br>
+								<br>
+								<form:form action="/CardGame/game/highlow/draw" method="POST">
+									<input type="hidden" id="select" name="select" value="small">
+									<input type="submit" value="小さい方に賭けてカードを引く" />
 								</form:form>
 							</c:when>
 							<c:when test="${DrawState == 2}">

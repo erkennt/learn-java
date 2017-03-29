@@ -11,19 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import dao.CardsDAO;
 import dao.GameSettingsDAO;
 import dao.UserDAO;
 import dao.access.GameLogAccessDAO;
+import logic.CardGameLogic;
 import model.CardsModel;
 import model.GameLogsModel;
 import model.GameSettingsModel;
 import model.UserModel;
 
 @Controller
-public class DonutsController {
+public class CardGameController {
 	@Autowired
 	private GameSettingsDAO gameSettingsDAO;
 
@@ -36,22 +39,28 @@ public class DonutsController {
 	@Autowired
 	private GameLogAccessDAO gameLogAccessDAO;
 
+	@Autowired
+	private CardGameLogic cardGameLogic;
+
 	@ModelAttribute("Game")
 	private GameSettingsModel init() {
 		return new GameSettingsModel();
 	}
 
-	@RequestMapping(value = "/game/donuts/main", method = { GET, POST })
-	public String login(@ModelAttribute("Game") GameSettingsModel gameSettingsModel, Model model, HttpSession session) {
-		Object sessionCheck = session.getAttribute("session");
-		if (sessionCheck == null) {
+	@RequestMapping(value = "/game/{gametype}/main", method = { GET, POST })
+	public String main(@PathVariable("gametype") String gameType, GameSettingsModel gameSettingsModel, Model model,
+			HttpSession session) {
+		if (session.getAttribute("session") == null) {
 			return "redirect:/";
 		}
 		// ユーザー情報の取得
 		UserModel userModel = (UserModel) session.getAttribute("session");
 
 		// ゲーム設定の読み込み
-		List<GameSettingsModel> gameSettingsItem = gameSettingsDAO.gameSettingsLoad(gameSettingsModel);
+		List<GameSettingsModel> gameSettingsItem = gameSettingsDAO.gameSettingsLoad(gameType);
+		if (gameSettingsItem.size() <= 0) {
+			return "redirect:/"; // 存在しないGameTypeの場合はTOPへリダイレクト
+		}
 		gameSettingsModel.setGameSettingsModel(gameSettingsItem);
 
 		// カードリストの生成
@@ -59,10 +68,8 @@ public class DonutsController {
 
 		// ゲーム初アクセス時の処理
 		if (cardList.isEmpty()) {
-			// 初期データの生成
-			cardsDAO.createInitialCardData(gameSettingsModel.getGameType());
-			// 生成したカードを取得
-			cardList = cardsDAO.getGameCardList(gameSettingsModel.getGameType());
+			cardsDAO.createInitialCardData(gameSettingsModel.getGameType()); // 初期データの生成
+			cardList = cardsDAO.getGameCardList(gameSettingsModel.getGameType());// 生成したカードを取得
 		}
 		// 現在のカード取得
 		CardsModel currentCard = cardList.get(cardList.size() - 1);
@@ -71,29 +78,51 @@ public class DonutsController {
 		model.addAttribute("CurrentCard", currentCard);
 
 		// ゲームログの取得
-		List<GameLogsModel> logList = gameLogAccessDAO.getGameLogs(gameSettingsModel.getLogCounts());
+		List<GameLogsModel> logList = gameLogAccessDAO.getGameLogs(gameSettingsModel.getGameType(),
+				gameSettingsModel.getLogCounts());
 		model.addAttribute("GameLogsList", logList);
 
 		// ユーザーがカードを引けるか判定する
 		int drawState = 0;
 
-		if (!currentCard.getUserId().equals(userModel.getUserId())){
+		if (!currentCard.getUserId().equals(userModel.getUserId())) {
 			drawState = 1;
 		}
 
 		// ユーザーの待機時間演算
 
 		model.addAttribute("DrawState", drawState);
-		return "game/donuts";
+		return "game/" + gameType;
+
 	}
 
-	@RequestMapping(value = "/game/donuts/draw", method = { POST })
-	public String drawCard(@ModelAttribute("Game") GameSettingsModel gameSettingsModel, Model model,
+	@RequestMapping(value = "/game/{gametype}/draw", method = { GET })
+	public String drawCard(@PathVariable("gametype") String gameType, GameSettingsModel gameSettingsModel, Model model,
 			HttpSession session) {
-		Object sessionCheck = session.getAttribute("session");
-		if (sessionCheck == null) {
+		if (session.getAttribute("session") == null) {
 			return "redirect:/";
 		}
+		return this.main(gameType, gameSettingsModel, model, session);
+	}
+
+	@RequestMapping(value = "/game/{gametype}/draw", method = { POST })
+	public String drawCard(@PathVariable("gametype") String gameType,
+			@RequestParam(value = "select", required = false) String select, GameSettingsModel gameSettingsModel,
+			Model model, HttpSession session) throws NoSuchMethodException, SecurityException {
+
+		if (session.getAttribute("session") == null) {
+			return "redirect:/";
+		}
+
+
+		// ゲーム設定の取得
+		List<GameSettingsModel> gameSettingsItem = gameSettingsDAO.gameSettingsLoad(gameType);
+
+		// 取得値チェック
+		if (gameSettingsItem.size() <= 0) {
+			return "redirect:/"; // 存在しないGameTypeの場合はTOPへリダイレクト
+		}
+		gameSettingsModel.setGameSettingsModel(gameSettingsItem);	//取得値をmodelに反映
 
 		// ユーザー情報の取得
 		UserModel userModel = (UserModel) session.getAttribute("session");
@@ -109,8 +138,27 @@ public class DonutsController {
 		model.addAttribute("CardList", cardList);
 		model.addAttribute("CurrentCard", currentCard);
 
-		// 前のカードと同じ値か判定
-		boolean result = (value != currentCard.getValue());
+		// カードを引けるか判定（リロード対策）
+		if (currentCard.getUserId().equals(userModel.getUserId())) {
+
+			// Logの再取得
+			List<GameLogsModel> logList = gameLogAccessDAO.getGameLogs(gameSettingsModel.getGameType(),
+					gameSettingsModel.getLogCounts());
+			model.addAttribute("GameLogsList", logList);
+
+			model.addAttribute("DrawState", 0);
+			return "game/" + gameType;
+		}
+
+		/*
+		 * ゲーム別 成否判定 Donuts・・・同じかどうか High&Low・・・大きいか小さいか
+		 */
+		boolean result = Boolean.FALSE;
+		if (gameType.equals("donuts")) {
+			result = cardGameLogic.donuts(value, currentCard.getValue());
+		} else if (gameType.equals("highlow")) {
+			result = cardGameLogic.highLow(value, currentCard.getValue(), select);
+		}
 
 		// 掛け金
 		long betType = 10000; // 画面から選択させる
@@ -123,14 +171,11 @@ public class DonutsController {
 
 		// メッセージ作成
 		String logMessage;
-
 		if (result) {
-			// 成功
 			logMessage = userModel.getNickName() + "さんが" + prize + "円獲得しました";
 			model.addAttribute("resultMessage", "セーフ！ " + prize + "円獲得しました");
 
 		} else {
-			// 失敗
 			logMessage = userModel.getNickName() + "さんが" + prize + "円失いました";
 			model.addAttribute("resultMessage", "アウトー！ " + prize + "円失いました");
 		}
@@ -158,12 +203,13 @@ public class DonutsController {
 				logMessage);
 
 		// 最新のログ情報を取得
-		List<GameLogsModel> logList = gameLogAccessDAO.getGameLogs(gameSettingsModel.getLogCounts());
+		List<GameLogsModel> logList = gameLogAccessDAO.getGameLogs(gameSettingsModel.getGameType(),
+				gameSettingsModel.getLogCounts());
 		model.addAttribute("GameLogsList", logList);
 
 		// ユーザーセッションの更新
 		userDAO.updateUserSessionInformation(session);
-		return "/game/donuts";
+		return "/game/" + gameType;
 	}
 
 }
