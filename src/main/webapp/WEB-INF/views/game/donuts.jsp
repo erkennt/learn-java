@@ -36,6 +36,10 @@
 							<c:when test="${DrawState == 1}">
 								<form:form action="/CardGame/game/donuts/draw" method="POST"
 									modelAttribute="Game">
+									<form:hidden path="GameType" />
+									<form:hidden path="WaitMinutes" />
+									<form:hidden path="CurrentCardId" />
+									<form:hidden path="LogCounts" />
 									<input type="submit" value="カードを引く" />
 								</form:form>
 							</c:when>

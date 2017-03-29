@@ -35,13 +35,10 @@ public class GameLogAccessDAO implements GameLogDAO {
 		namedParameterJdbcTemplate.update(sql, params);
 	}
 
-	public List<GameLogsModel> getGameLogs(String gameType, int logCounts){
-		String sql = "Select * FROM GameLogs gl INNER JOIN Cards c ON gl.Cardid = c.CardId"
-				+" WHERE GameType = :GameType"
-				+ " ORDER BY LogId DESC LIMIT :LogCounts";
+	public List<GameLogsModel> getGameLogs(int logCounts){
+		String sql = "Select * FROM GameLogs ORDER BY LogId DESC LIMIT :LogCounts";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("GameType", gameType);
 		params.addValue("LogCounts", logCounts);
 
 		return namedParameterJdbcTemplate.query(sql, params,

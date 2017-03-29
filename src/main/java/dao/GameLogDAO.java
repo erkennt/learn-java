@@ -13,6 +13,6 @@ public interface GameLogDAO {
 	public void createGameLog(long cardId, String userId, int magnification, Long betType, String message);
 
 	// Logの取得
-	public List<GameLogsModel> getGameLogs(String gameType, int logCounts);
+	public List<GameLogsModel> getGameLogs(int logCounts);
 
 }

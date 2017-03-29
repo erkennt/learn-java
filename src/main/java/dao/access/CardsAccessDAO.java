@@ -1,7 +1,6 @@
 package dao.access;
 
 import java.util.List;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -63,17 +62,10 @@ public class CardsAccessDAO implements CardsDAO {
 	}
 
 	public void createInitialCardData(String gameType) {
-		String sql = "INSERT INTO Cards (GameType, UserId, Value, Result) VALUES (:GameType, :UserId, :Value, :Result) ";
-
-		Random rand = new Random(System.currentTimeMillis());
-		int value = rand.nextInt(5) + 1; // 1～5の数値を算出
+		String sql = "INSERT INTO Cards (GameType, UserId, Value, Result) VALUES (:GameType, NULL, 3, 0) ";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("GameType", gameType);
-		params.addValue("UserId", "System");
-		params.addValue("Value", value);
-		params.addValue("Result", 0);
-
 
 		namedParameterJdbcTemplate.update(sql, params);
 	}
