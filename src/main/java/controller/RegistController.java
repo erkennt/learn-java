@@ -153,12 +153,15 @@ public class RegistController {
 				initialAsset = Long.parseLong(list.getValue());
 			}
 			userModel.setAsset(initialAsset);
+	
+			// 仮登録実行
+			userDAO.userInsert(userModel);
 
 			// AuthenticationPoolへの登録
 			mailAuthenticationDAO.addAuthenticationPool(userModel.getUserId(), userModel.getMailAddress());
 
-			// 仮登録実行
-			userDAO.userInsert(userModel);
+
+
 
 			// URL生成 ID + MailAddress
 			String requestUrl = request.getRequestURL().toString();
