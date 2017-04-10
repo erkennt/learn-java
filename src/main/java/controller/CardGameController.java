@@ -129,7 +129,7 @@ public class CardGameController {
 
 		// カード値の生成
 		Random rand = new Random(System.currentTimeMillis());
-		int value = rand.nextInt(5) + 1; // 1～5の数値を算出
+		int newValue = rand.nextInt(5) + 1; // 1～5の数値を算出
 
 		// 現在のカード取得
 		List<CardsModel> cardList = cardsDAO.getGameCardList(gameSettingsModel.getGameType());
@@ -155,9 +155,9 @@ public class CardGameController {
 		 */
 		boolean result = Boolean.FALSE;
 		if (gameType.equals("donuts")) {
-			result = cardGameLogic.donuts(value, currentCard.getValue());
+			result = cardGameLogic.donuts(newValue, currentCard.getValue());
 		} else if (gameType.equals("highlow")) {
-			result = cardGameLogic.highLow(value, currentCard.getValue(), select);
+			result = cardGameLogic.highLow(newValue, currentCard.getValue(), select);
 		}
 
 		// 掛け金
@@ -186,7 +186,7 @@ public class CardGameController {
 		}
 
 		// カードデータの生成
-		cardsDAO.createCardData(gameSettingsModel.getGameType(), userModel.getUserId(), value, result);
+		cardsDAO.createCardData(gameSettingsModel.getGameType(), userModel.getUserId(), newValue, result);
 
 		// UserLastDraws更新or新規作成
 

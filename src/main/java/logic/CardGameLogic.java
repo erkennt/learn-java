@@ -5,22 +5,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class CardGameLogic {
 
-	public boolean donuts(int oldValue, int currentValue) {
-		boolean result = (oldValue != currentValue);
+	public boolean donuts(int newValue, int currentValue) {
+		boolean result = (newValue != currentValue);
 
 		return result;
 	}
 
-	public boolean highLow(int oldValue, int currentValue, String select) {
+	public boolean highLow(int newValue, int currentValue, String select) {
 		boolean result = Boolean.FALSE;
 
 		if (select.equals("big")) {
-			result = (oldValue <= currentValue);
+			result = (newValue >= currentValue);
 
 		}
 
 		if (select.equals("small")) {
-			result = (oldValue >= currentValue);
+			result = (newValue <= currentValue);
 		}
 
 		return result;

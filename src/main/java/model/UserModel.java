@@ -26,7 +26,7 @@ public class UserModel {
 	private String Password;
 
 	@NotEmpty
-	@Length(min = 6, max = 20)
+	@Length(min = 2, max = 20)
 	private String NickName;
 
 	@NotEmpty
