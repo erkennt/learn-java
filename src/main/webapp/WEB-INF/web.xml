@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+ xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
 
-    <display-name>CardGame</display-name>
+    <display-name>CardGame2</display-name>
     <!-- (1) -->
     <servlet>
         <servlet-name>dispatcherServlet</servlet-name>
@@ -15,7 +17,19 @@
             </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+
+
+         <multipart-config>
+             <max-file-size>5242880</max-file-size>
+             <max-request-size>27262976</max-request-size>
+             <file-size-threshold>0</file-size-threshold>
+         </multipart-config>
     </servlet>
+
+	<welcome-file-list>
+		<welcome-file>/WEB-INF//view/login.jsp</welcome-file>
+	</welcome-file-list>
+
 
     <!-- (2) -->
     <servlet-mapping>
@@ -41,4 +55,16 @@
   <filter-name>characterEncodingFilter</filter-name>
   <url-pattern>/*</url-pattern>
 </filter-mapping>
+
+
+	<!-- spring security 設定  -->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 </web-app>
