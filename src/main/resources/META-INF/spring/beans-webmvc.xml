@@ -10,10 +10,23 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
 	<!-- クラスをDIコンテナへの読み込む -->
-	<context:component-scan base-package="controller,dao,annotaion,mail,logic" />
+	<context:component-scan base-package="learn.second" />
 
-	<!-- @Transactionの有効化 -->
-	<mvc:annotation-driven />
+	<!-- 他のViewResolverより優先度を高くする -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="0" />
+		<!-- @Transactionの有効化 -->
+	</bean>
+	<mvc:annotation-driven>
+		<mvc:argument-resolvers>
+			<bean
+				class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+			<!-- UserDetailsオブジェクトをControllerの引数として受け取るための設定 -->
+			<bean
+				class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
+
 
 	<!-- リソースフォルダマッピング -->
 	<mvc:resources mapping="/resources/**" location="classpath:/META-INF/" />
@@ -83,6 +96,9 @@
 		</property>
 	</bean>
 
-
+	<!-- ファイルアップロード -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.support.StandardServletMultipartResolver">
+	</bean>
 
 </beans>
